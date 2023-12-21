@@ -7,8 +7,11 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <time.h>
 
 void send_by_stdin(int sock, char *buffer);
+
+void set_socket_opt(int sock);
 
 int main(int argc, char *argv[]) {
     char *ip = "127.0.0.1";
@@ -42,10 +45,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     printf("connect success!!!\n");
+
+    set_socket_opt(sock);
+
     char buffer[100];
     sleep(5);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100000; i++) {
 //        send_by_stdin(sock, buffer);
         char buff[100];
         sprintf(buff, "i am from client:%d\n ", i);
@@ -57,10 +63,11 @@ int main(int argc, char *argv[]) {
         if (len == 0) {
             printf("server socket is closed.");
         } else {
-            printf("Message form server: %s\n", buffer);
+            time_t cur_time = time(NULL);
+            printf("time:%s, Message form server: %s\n",ctime(&cur_time), buffer);
         }
 
-        if (i == 15) {
+        if (i == 150) {
             break;
         }
     }
@@ -68,6 +75,24 @@ int main(int argc, char *argv[]) {
     sleep(5);
     close(sock);
     return 0;
+}
+
+void set_socket_opt(int sock) {
+    struct  timeval ts;
+    ts.tv_sec = 1;
+    ts.tv_usec= 0;
+
+    if(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &ts, sizeof(ts)) < 0){
+        printf("set socket rcv timeout error. close the socket.");
+        close(sock);
+        exit(1);
+    }
+
+    if(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &ts, sizeof(ts)) < 0){
+        printf("set socket rcv timeout error. close the socket.");
+        close(sock);
+        exit(1);
+    }
 }
 
 void send_by_stdin(int sock, char *buffer) {

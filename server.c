@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
 
 void handle_client(int clnt_sock){//
     int len;
@@ -18,7 +19,10 @@ void handle_client(int clnt_sock){//
                 printf("client exit\n");
                 break;
             }
-            printf("receive from client:%s\n",buff);
+
+            time_t cur_time = time(NULL);
+            printf("time:%s, Message form client: %s\n",ctime(&cur_time), buff);
+
             send(clnt_sock, buff, sizeof(buff),0);
             memset(buff,0,sizeof(buff));
         }
