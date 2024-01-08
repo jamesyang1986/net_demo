@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     char buffer[100];
     sleep(5);
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 100; i++) {
 //        send_by_stdin(sock, buffer);
         char buff[100];
         sprintf(buff, "i am from client:%d\n ", i);
@@ -64,7 +64,6 @@ int main(int argc, char *argv[]) {
         }
 
         memset(buffer, 0, sizeof(buffer));
-        sleep(5);
         int len = recv(sock, buffer, sizeof(buffer), 0);
         if (len == 0) {
             printf("server socket is closed.");
@@ -76,9 +75,7 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-        if (i == 150) {
-            break;
-        }
+
     }
     printf("start to close the client socket. \n");
     sleep(5);

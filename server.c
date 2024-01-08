@@ -9,8 +9,16 @@
 #include <netinet/in.h>
 #include <time.h>
 #include <sys/time.h>
+#include <errno.h>
+#include <pthread.h>
 
 void set_socket_opt(int sock);
+void handle_client(int clnt_sock);
+
+void *handle_by_thread(void *arg){
+    int fd = *((int *)arg);
+    handle_client(fd);
+}
 
 void handle_client(int clnt_sock) {//
     int len;
@@ -24,14 +32,14 @@ void handle_client(int clnt_sock) {//
             }
 
             time_t cur_time = time(NULL);
-            printf("time:%s, Message form client: %s\n", ctime(&cur_time), buff);
+            printf("tid:%lu, time:%s, Message form client: %s\n", pthread_self(), ctime(&cur_time), buff);
 
             int size = send(clnt_sock, buff, sizeof(buff), 0);
             if (size == 0) {
                 printf("client closed..");
                 break;
             } else if (size < 0) {
-                printf("socket send error");
+                printf("socket send error, error:%s\n", strerror(errno));
                 break;
             }
             memset(buff, 0, sizeof(buff));
@@ -39,7 +47,7 @@ void handle_client(int clnt_sock) {//
             printf("client closed\n");
             break;
         } else {
-            printf("socket read error:\n");
+            printf("socket read error, error:%s\n", strerror(errno));
         }
     }
     //关闭套接字
@@ -57,6 +65,8 @@ int main() {
     serv_addr.sin_family = AF_INET;  //使用IPv4地址
     serv_addr.sin_addr.s_addr = inet_addr("0.0.0.0");  //具体的IP地址
     serv_addr.sin_port = htons(9527);  //端口
+
+
     bind(serv_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));//绑定
     printf("bind success!!\n");
     //进入监听状态，等待用户发起请求
@@ -69,8 +79,16 @@ int main() {
         int clnt_sock = accept(serv_sock, (struct sockaddr *) &clnt_addr,
                                &clnt_addr_size);//接收客户端的连接请求，如果没有客户端连接，则程序会在这里阻塞，直到有客户端的连接到来
         set_socket_opt(clnt_sock);
-        handle_client(clnt_sock);//为客户端的服务函数
+//        handle_client(clnt_sock);//为客户端的服务函数
+        pthread_t t;
+        if(pthread_create(&t, NULL, handle_by_thread, &clnt_sock) ){
+            printf("fail to create pthread...");
+            continue;
+        }
     }
+
+    sleep(100000);
+    printf("start to close the tcp server...");
     close(serv_sock);
     return 0;
 }
