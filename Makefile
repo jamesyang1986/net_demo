@@ -129,30 +129,6 @@ net_demo_server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/build
 .PHONY : net_demo_server/fast
 
-main.o: main.c.o
-.PHONY : main.o
-
-# target to build an object file
-main.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/main.c.o
-.PHONY : main.c.o
-
-main.i: main.c.i
-.PHONY : main.i
-
-# target to preprocess a source file
-main.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/main.c.i
-.PHONY : main.c.i
-
-main.s: main.c.s
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/main.c.s
-.PHONY : main.c.s
-
 net.o: net.c.o
 .PHONY : net.o
 
@@ -177,6 +153,54 @@ net.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/net.c.s
 .PHONY : net.c.s
 
+server.o: server.c.o
+.PHONY : server.o
+
+# target to build an object file
+server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/server.c.o
+.PHONY : server.c.o
+
+server.i: server.c.i
+.PHONY : server.i
+
+# target to preprocess a source file
+server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/server.c.i
+.PHONY : server.c.i
+
+server.s: server.c.s
+.PHONY : server.s
+
+# target to generate assembly for a file
+server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/server.c.s
+.PHONY : server.c.s
+
+skiplist.o: skiplist.c.o
+.PHONY : skiplist.o
+
+# target to build an object file
+skiplist.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/skiplist.c.o
+.PHONY : skiplist.c.o
+
+skiplist.i: skiplist.c.i
+.PHONY : skiplist.i
+
+# target to preprocess a source file
+skiplist.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/skiplist.c.i
+.PHONY : skiplist.c.i
+
+skiplist.s: skiplist.c.s
+.PHONY : skiplist.s
+
+# target to generate assembly for a file
+skiplist.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/net_demo_server.dir/build.make CMakeFiles/net_demo_server.dir/skiplist.c.s
+.PHONY : skiplist.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +210,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... net_demo_server"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 	@echo "... net.o"
 	@echo "... net.i"
 	@echo "... net.s"
+	@echo "... server.o"
+	@echo "... server.i"
+	@echo "... server.s"
+	@echo "... skiplist.o"
+	@echo "... skiplist.i"
+	@echo "... skiplist.s"
 .PHONY : help
 
 

@@ -8,28 +8,37 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <time.h>
+#include <sys/time.h>
 
-void handle_client(int clnt_sock){//
+void set_socket_opt(int sock);
+
+void handle_client(int clnt_sock) {//
     int len;
     char buff[100];
     printf("a new client connected!!!!!\n");
-    while(1){
-        if((len=recv(clnt_sock, buff, sizeof(buff),0))>0){
-            if(strcmp(buff,"exit")==0){
+    while (1) {
+        if ((len = recv(clnt_sock, buff, sizeof(buff), 0)) > 0) {
+            if (strcmp(buff, "exit") == 0) {
                 printf("client exit\n");
                 break;
             }
 
             time_t cur_time = time(NULL);
-            printf("time:%s, Message form client: %s\n",ctime(&cur_time), buff);
+            printf("time:%s, Message form client: %s\n", ctime(&cur_time), buff);
 
-            send(clnt_sock, buff, sizeof(buff),0);
-            memset(buff,0,sizeof(buff));
-        }
-        else if( len ==0){
+            int size = send(clnt_sock, buff, sizeof(buff), 0);
+            if (size == 0) {
+                printf("client closed..");
+                break;
+            } else if (size < 0) {
+                printf("socket send error");
+                break;
+            }
+            memset(buff, 0, sizeof(buff));
+        } else if (len == 0) {
             printf("client closed\n");
             break;
-        }else{
+        } else {
             printf("socket read error:\n");
         }
     }
@@ -38,7 +47,7 @@ void handle_client(int clnt_sock){//
     printf("clnt_socket closed\n");
 }
 
-int main(){
+int main() {
     //创建套接字
     int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     printf("create socket success!\n");
@@ -48,7 +57,7 @@ int main(){
     serv_addr.sin_family = AF_INET;  //使用IPv4地址
     serv_addr.sin_addr.s_addr = inet_addr("0.0.0.0");  //具体的IP地址
     serv_addr.sin_port = htons(9527);  //端口
-    bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));//绑定
+    bind(serv_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));//绑定
     printf("bind success!!\n");
     //进入监听状态，等待用户发起请求
     listen(serv_sock, 20);
@@ -56,10 +65,30 @@ int main(){
     //接收客户端请求
     struct sockaddr_in clnt_addr;
     socklen_t clnt_addr_size = sizeof(clnt_addr);
-    while(1){
-        int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);//接收客户端的连接请求，如果没有客户端连接，则程序会在这里阻塞，直到有客户端的连接到来
+    while (1) {
+        int clnt_sock = accept(serv_sock, (struct sockaddr *) &clnt_addr,
+                               &clnt_addr_size);//接收客户端的连接请求，如果没有客户端连接，则程序会在这里阻塞，直到有客户端的连接到来
+        set_socket_opt(clnt_sock);
         handle_client(clnt_sock);//为客户端的服务函数
     }
     close(serv_sock);
     return 0;
+}
+
+void set_socket_opt(int sock) {
+    struct timeval ts;
+    ts.tv_sec = 1;
+    ts.tv_usec = 0;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &ts, sizeof(ts)) < 0) {
+        printf("set socket rcv timeout error. close the socket.");
+        close(sock);
+        exit(1);
+    }
+
+    if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &ts, sizeof(ts)) < 0) {
+        printf("set socket rcv timeout error. close the socket.");
+        close(sock);
+        exit(1);
+    }
 }

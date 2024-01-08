@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <time.h>
+#include <errno.h>
 
 void send_by_stdin(int sock, char *buffer);
 
@@ -55,16 +56,24 @@ int main(int argc, char *argv[]) {
 //        send_by_stdin(sock, buffer);
         char buff[100];
         sprintf(buff, "i am from client:%d\n ", i);
-        send(sock, buff, sizeof(buff), 0);
+        int size = send(sock, buff, sizeof(buff), 0);
+        if (size == 0) {
+            printf("socket closed.");
+        } else if (size < 0) {
+            printf("socket write error.\n");
+        }
 
         memset(buffer, 0, sizeof(buffer));
         sleep(5);
         int len = recv(sock, buffer, sizeof(buffer), 0);
         if (len == 0) {
             printf("server socket is closed.");
-        } else {
+        } else if (len > 0) {
             time_t cur_time = time(NULL);
-            printf("time:%s, Message form server: %s\n",ctime(&cur_time), buffer);
+            printf("time:%s, Message form server: %s\n", ctime(&cur_time), buffer);
+        } else {
+            printf("socket read error:%d \n", errno);
+            break;
         }
 
         if (i == 150) {
@@ -78,17 +87,17 @@ int main(int argc, char *argv[]) {
 }
 
 void set_socket_opt(int sock) {
-    struct  timeval ts;
+    struct timeval ts;
     ts.tv_sec = 1;
-    ts.tv_usec= 0;
+    ts.tv_usec = 0;
 
-    if(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &ts, sizeof(ts)) < 0){
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &ts, sizeof(ts)) < 0) {
         printf("set socket rcv timeout error. close the socket.");
         close(sock);
         exit(1);
     }
 
-    if(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &ts, sizeof(ts)) < 0){
+    if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &ts, sizeof(ts)) < 0) {
         printf("set socket rcv timeout error. close the socket.");
         close(sock);
         exit(1);
