@@ -15,6 +15,9 @@
 void set_socket_opt(int sock);
 void handle_client(int clnt_sock);
 
+pthread_mutex_t  mutex_lock;
+int msg_count = 0;
+
 void *handle_by_thread(void *arg){
     int fd = *((int *)arg);
     handle_client(fd);
@@ -31,8 +34,12 @@ void handle_client(int clnt_sock) {//
                 break;
             }
 
+            pthread_mutex_lock(&mutex_lock);
+            msg_count++;
+            pthread_mutex_unlock(&mutex_lock);
+
             time_t cur_time = time(NULL);
-            printf("tid:%lu, time:%s, Message form client: %s\n", pthread_self(), ctime(&cur_time), buff);
+            printf("tid:%lu, time:%s, msg_count:%d, Message form client: %s\n", pthread_self(), ctime(&cur_time), msg_count,  buff);
 
             int size = send(clnt_sock, buff, sizeof(buff), 0);
             if (size == 0) {
